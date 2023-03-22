@@ -4,7 +4,9 @@ from jbi100_app.views.PCPlot import PCPlot
 from jbi100_app.views.Heatmap import Heatmap
 from jbi100_app.views.HistogramFrequencySingleAttr import HistogramFrequencySingleAttr
 from jbi100_app.views.HistogramFrequencyGroup import HistogramFrequencyGroupAttr
-from jbi100_app.data import get_data
+from jbi100_app.views.HorizontalBarFeatures import FeatureImportances
+from jbi100_app.data import get_data, get_models_errors
+from sklearn.inspection import permutation_importance
 
 from dash import html, dcc
 import plotly.express as px
@@ -14,14 +16,22 @@ from dash.dependencies import Input, Output, State
 if __name__ == '__main__':
     # Create data
     df = get_data()
+
+    copy_df = df.drop(["Religion", "Relationship", "Children",
+                       "Education", "Occupation", "Social class",
+                       "House owner", "Cars owned", "Health insurance", "Income"], axis=1)
+    copy_train_df = copy_df[copy_df["ORIGIN"] == "train"].drop("ORIGIN", axis=1)
+    copy_test_df = copy_df[copy_df["ORIGIN"] == "test"].drop("ORIGIN", axis=1)
     train_df = df[df["ORIGIN"] == "train"]
     test_df = df[df["ORIGIN"] == "test"]
+    nb_m, dt_m, nb_e, dt_e = get_models_errors(copy_train_df, copy_test_df)
 
     # Instantiate custom views
     pcp_plot = PCPlot("Parallel coordinate plot (PCP)", train_df)
     heatmap_plot = Heatmap(train_df)
     hist_single_plot = HistogramFrequencySingleAttr("HistogramFrequencySingleAttr", train_df)
     hist_group_plot = HistogramFrequencyGroupAttr("HistogramFrequencyGroupAttr", train_df)
+    horiz_feature_importances = FeatureImportances("FeatureImportances")
 
     app.layout = html.Div(
         id="app-container",
@@ -46,14 +56,15 @@ if __name__ == '__main__':
                             dcc.Graph(id="heatmapplot", figure=heatmap_plot.fig),
                         ]),
                     hist_single_plot,
-                    hist_group_plot
+                    hist_group_plot,
+                    horiz_feature_importances
                 ],
                 # Custom styling to allow right column to scroll
-                # style={"flex": "1 1 auto",
-                #        "overflow": "auto"},
+                style={"flex": "1 1 auto",
+                       "overflow": "auto"},
             ),
         ],
-        # style={"display": "flex", "height": "100vh"},
+        style={"display": "flex", "height": "100vh"},
     )
 
     # Define interactions
@@ -96,5 +107,27 @@ if __name__ == '__main__':
         if n1:
             return not is_open
         return is_open
+
+    @app.callback(
+        [Output(horiz_feature_importances.html_id, "figure"),
+         Output("FeatureImportances_FeatureImportances", "children")],
+        Input("select-model", "value")
+    )
+    def update_model(model_name):
+        if model_name == "Naive Bayes classifier":
+            perm_importances = permutation_importance(nb_m,
+                                                      copy_test_df.drop("CARAVAN", axis=1),
+                                                      copy_test_df["CARAVAN"])
+            importances, model_errors = perm_importances.importances_mean, nb_e
+        elif model_name == "Decision Tree classifier":
+            perm_importances = permutation_importance(dt_m,
+                                                      copy_test_df.drop("CARAVAN", axis=1),
+                                                      copy_test_df["CARAVAN"])
+            importances, model_errors = perm_importances.importances_mean, dt_e
+
+        cols = copy_test_df.drop("CARAVAN", axis=1).columns
+        return \
+            horiz_feature_importances.update(importances, cols), \
+            f"Feature importances {model_name} (Accuracy: {round(model_errors[0], 3)})"
 
     app.run_server(debug=True, dev_tools_ui=True,)

@@ -245,7 +245,7 @@ def generate_control_card():
                 size="xl",
                 is_open=False,
             ),
-            html.H3("Data exploration"),
+            html.H4("Data exploration"),
             html.Label("PCP column selector"),
             dcc.Dropdown(
                 id="select-columns-pcp",
@@ -266,6 +266,14 @@ def generate_control_card():
                 id="select-group-attr",
                 options=[{"label": i.capitalize(), "value": i} for i in df_groups],
                 value=df_groups[0],
+            ),
+            html.H4("Model exploration"),
+            html.Label("Model choice"),
+            dcc.Dropdown(
+                id="select-model",
+                options=[{"label": i, "value": i} for i in ["Naive Bayes classifier",
+                                                            "Decision Tree classifier"]],
+                value="Decision Tree classifier",
             ),
         ], style={"textAlign": "float-left"}
     )
