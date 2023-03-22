@@ -1,3 +1,17 @@
+EXTRA NOTES:
+scatterplot matrix
+PCP to compare attributes
+
+Radar plot to compare clusters.
+
+
+Add an item filter at the data thing. With a slider
+
+Discover - similarities
+add some dimensionality reduction?
+Linear discriminant analysis
+
+
 Theory: 
 Abstract & overview of results:
 @article{van2000coil,
@@ -32,6 +46,9 @@ Action: Discover
 Target: Distribution/Correlation
 Implementation: Histogram, distribution, correlation
 Answer question: Can clear distinctions between data be found? Like, clustering by just 1 variable
+
+Discover, correlation/
+PCP
 
 Action: Discover
 Target: Patterns
