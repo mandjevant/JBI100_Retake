@@ -20,10 +20,11 @@ class HistogramFrequencySingleAttr(html.Div):
             ],
         )
 
-    def update(self, col_name):
+    def update(self, col_name, color):
+        # Update the histogram plot by the selected attribute and color
         self.fig = px.histogram(self.df,
                                 x=col_name,
-                                color="CARAVAN",
+                                color=color,
                                 marginal="violin",
                                 hover_data=self.df.columns,
                                 barmode="stack")

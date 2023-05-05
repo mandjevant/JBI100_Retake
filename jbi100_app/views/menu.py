@@ -1,5 +1,5 @@
 from dash import dcc, html
-from ..config import df_columns, df_columns_full, df_groups
+from ..config import df_columns, df_columns_full, df_groups, df_columns_full_cl
 import dash_bootstrap_components as dbc
 
 
@@ -11,10 +11,10 @@ def generate_description_card():
     return html.Div(
         id="description-card",
         children=[
-            html.H5("Example dashboard"),
+            html.H5("JBI100 retake dashboard"),
             html.Div(
                 id="intro",
-                children="You can use this as a basic template for your JBI100 visualization project.",
+                children="Dashboard by P.T.C.M. Tholhuijsen (id: 1237447).",
             ),
         ],
     )
@@ -29,6 +29,10 @@ def generate_control_card():
         id="control-card",
         children=[
             dbc.Button("Dataset information", id="open", n_clicks=0),
+
+            # Copy paste the database description.
+            #  this will be posted in a popup window on the dashboard
+            #  when the button is clicked.
             dbc.Modal(
                 [
                     dbc.ModalHeader(dbc.ModalTitle("TIC Data description")),
@@ -245,8 +249,9 @@ def generate_control_card():
                 size="xl",
                 is_open=False,
             ),
+            # Data exploration dropdowns
             html.H4("Data exploration"),
-            html.Label("PCP column selector"),
+            html.Label("PCP & heatmap column selector"),
             dcc.Dropdown(
                 id="select-columns-pcp",
                 options=[{"label": i.capitalize(), "value": i} for i in df_columns_full if i != "ORIGIN"],
@@ -254,19 +259,20 @@ def generate_control_card():
                 multi=True,
             ),
             html.Br(),
-            html.Label("Attribute distribution"),
+            html.Label("Attribute distribution plot"),
             dcc.Dropdown(
                 id="select-single-attr",
                 options=[{"label": i.capitalize(), "value": i} for i in df_columns_full if i != "ORIGIN"],
                 value="MOSTYPE",
             ),
             html.Br(),
-            html.Label("Attribute group distribution"),
+            html.Label("Group attribute bar plot"),
             dcc.Dropdown(
                 id="select-group-attr",
                 options=[{"label": i.capitalize(), "value": i} for i in df_groups],
                 value=df_groups[0],
             ),
+            # Model exploration dropdowns
             html.H4("Model exploration"),
             html.Label("Model choice"),
             dcc.Dropdown(
@@ -274,6 +280,20 @@ def generate_control_card():
                 options=[{"label": i, "value": i} for i in ["Naive Bayes classifier",
                                                             "Decision Tree classifier"]],
                 value="Decision Tree classifier",
+            ),
+            html.Br(),
+            html.Label("Embedding choice"),
+            dcc.RadioItems(
+                id="select-embedding",
+                options=[{"label": i, "value": i} for i in ["UMAP", "t-SNE"]],
+                value="UMAP",
+            ),
+            html.Br(),
+            html.Label("Color cluster scatter plot"),
+            dcc.Dropdown(
+                id="select-color-cluster",
+                options=[{"label": i.capitalize(), "value": i} for i in df_columns_full_cl if i != "ORIGIN"],
+                value="CARAVAN",
             ),
         ], style={"textAlign": "float-left"}
     )

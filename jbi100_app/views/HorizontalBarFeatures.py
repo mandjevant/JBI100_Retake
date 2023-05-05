@@ -20,6 +20,7 @@ class FeatureImportances(html.Div):
         )
 
     def update(self, importances, cols):
+        # Update the feature importances plot by the selected model.
         self.fig = px.bar(x=importances,
                           y=cols,
                           orientation="h",

@@ -7,7 +7,7 @@ body {
 }
 
 #left-column {
-    padding: 20px 2rem;
+    /*padding: 20px 2rem;*/
     display: flex;
     flex-direction: column;
     min-height: 100vh;
